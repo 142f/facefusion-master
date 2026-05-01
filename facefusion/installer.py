@@ -14,8 +14,11 @@ LOCALES =\
 {
 	'install_dependency': 'install the {dependency} package',
 	'force_reinstall': 'force reinstall of packages',
+	'requirements_file_not_found': 'requirements file not found',
 	'skip_conda': 'skip the conda environment check',
-	'conda_not_activated': 'conda is not activated'
+	'conda_not_activated': 'conda is not activated',
+	'requirements_file': 'install packages from the requirements file',
+	'skip_onnxruntime_rewrite': 'skip rewriting the onnxruntime package'
 }
 ONNXRUNTIME_SET =\
 {
@@ -35,7 +38,9 @@ if is_linux():
 def cli() -> None:
 	signal.signal(signal.SIGINT, signal_exit)
 	program = ArgumentParser(formatter_class = partial(HelpFormatter, max_help_position = 50))
-	program.add_argument('--onnxruntime', help = LOCALES.get('install_dependency').format(dependency = 'onnxruntime'), choices = ONNXRUNTIME_SET.keys(), required = True)
+	program.add_argument('--onnxruntime', help = LOCALES.get('install_dependency').format(dependency = 'onnxruntime'), choices = ONNXRUNTIME_SET.keys(), required = False, default = 'default')
+	program.add_argument('--requirements-file', help = LOCALES.get('requirements_file'), default = 'requirements.txt')
+	program.add_argument('--skip-onnxruntime-rewrite', help = LOCALES.get('skip_onnxruntime_rewrite'), action = 'store_true')
 	program.add_argument('--force-reinstall', help = LOCALES.get('force_reinstall'), action = 'store_true')
 	program.add_argument('--skip-conda', help = LOCALES.get('skip_conda'), action = 'store_true')
 	program.add_argument('-v', '--version', version = metadata.get('name') + ' ' + metadata.get('version'), action = 'version')
@@ -59,16 +64,20 @@ def run(program : ArgumentParser) -> None:
 	if args.force_reinstall:
 		commands.append('--force-reinstall')
 
-	with open('requirements.txt') as file:
+	if not os.path.isfile(args.requirements_file):
+		sys.stdout.write(LOCALES.get('requirements_file_not_found') + ': ' + args.requirements_file + os.linesep)
+		sys.exit(1)
 
+	with open(args.requirements_file) as file:
 		for line in file.readlines():
 			__line__ = line.strip()
-			if not __line__.startswith('onnxruntime'):
+			if __line__ and not __line__.startswith('#') and (not __line__.startswith('onnxruntime') or args.skip_onnxruntime_rewrite):
 				commands.append(__line__)
 
-	onnxruntime_name, onnxruntime_version = ONNXRUNTIME_SET.get(args.onnxruntime)
-	commands.append(onnxruntime_name + '==' + onnxruntime_version)
+	if not args.skip_onnxruntime_rewrite:
+		onnxruntime_name, onnxruntime_version = ONNXRUNTIME_SET.get(args.onnxruntime)
+		commands.append(onnxruntime_name + '==' + onnxruntime_version)
 
-	subprocess.call([ shutil.which('pip'), 'uninstall', 'onnxruntime', onnxruntime_name, '-y', '-q' ])
+		subprocess.call([ shutil.which('pip'), 'uninstall', 'onnxruntime', onnxruntime_name, '-y', '-q' ])
 
 	subprocess.call(commands)

@@ -13,6 +13,10 @@ from facefusion.hash_helper import validate_hash
 from facefusion.types import Command, DownloadProvider, DownloadSet
 
 
+def is_offline_mode() -> bool:
+	return os.environ.get('FACEFUSION_OFFLINE') == '1'
+
+
 def open_curl(commands : List[Command]) -> subprocess.Popen[bytes]:
 	commands = curl_builder.run(commands)
 	return subprocess.Popen(commands, stdin = subprocess.PIPE, stdout = subprocess.PIPE)
@@ -23,7 +27,12 @@ def conditional_download(download_directory_path : str, urls : List[str]) -> Non
 		download_file_name = os.path.basename(urlparse(url).path)
 		download_file_path = os.path.join(download_directory_path, download_file_name)
 		initial_size = get_file_size(download_file_path)
-		download_size = get_static_download_size(url)
+		download_size = 0 if is_offline_mode() else get_static_download_size(url)
+
+		if is_offline_mode():
+			if initial_size <= 0:
+				raise RuntimeError('offline mode is enabled and the model file is missing: ' + download_file_path)
+			continue
 
 		if initial_size < download_size:
 			with tqdm(total = download_size, initial = initial_size, desc = translator.get('downloading'), unit = 'B', unit_scale = True, unit_divisor = 1024, ascii = ' =', disable = state_manager.get_item('log_level') in [ 'warn', 'error' ]) as progress:
@@ -62,6 +71,9 @@ def get_static_download_size(url : str) -> int:
 
 @lru_cache(maxsize = 64)
 def ping_static_url(url : str) -> bool:
+	if is_offline_mode():
+		return False
+
 	commands = curl_builder.chain(
 		curl_builder.ping(url),
 		curl_builder.set_timeout(5)

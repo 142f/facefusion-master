@@ -1,4 +1,5 @@
 import itertools
+import os
 import shutil
 from typing import List
 
@@ -9,7 +10,11 @@ from facefusion.types import Command
 def run(commands : List[Command]) -> List[Command]:
 	user_agent = metadata.get('name') + '/' + metadata.get('version')
 
-	return [ shutil.which('curl'), '--user-agent', user_agent, '--location', '--silent' ] + commands
+	return [ resolve_curl(), '--user-agent', user_agent, '--location', '--silent' ] + commands
+
+
+def resolve_curl() -> str:
+	return os.environ.get('FACEFUSION_CURL_BIN') or shutil.which('curl')
 
 
 def chain(*commands : List[Command]) -> List[Command]:

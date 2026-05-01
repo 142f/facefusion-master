@@ -33,6 +33,7 @@ def get_available_execution_providers() -> List[ExecutionProvider]:
 def create_inference_providers(execution_device_id : int, execution_providers : List[ExecutionProvider]) -> List[InferenceProvider]:
 	inference_providers : List[InferenceProvider] = []
 	cache_path = resolve_cache_path()
+	execution_providers = resolve_safe_execution_providers(execution_providers)
 
 	for execution_provider in execution_providers:
 		if execution_provider == 'cuda':
@@ -106,6 +107,23 @@ def create_inference_providers(execution_device_id : int, execution_providers : 
 		inference_providers.append(facefusion.choices.execution_provider_set.get('cpu'))
 
 	return inference_providers
+
+
+def resolve_safe_execution_providers(execution_providers : List[ExecutionProvider]) -> List[ExecutionProvider]:
+	available_execution_providers = get_available_execution_providers()
+	safe_execution_providers : List[ExecutionProvider] = []
+
+	for execution_provider in execution_providers:
+		if execution_provider in available_execution_providers:
+			safe_execution_providers.append(execution_provider)
+
+	if safe_execution_providers:
+		return safe_execution_providers
+
+	if os.environ.get('FACEFUSION_ALLOW_CPU_FALLBACK') == '1' and 'cpu' in available_execution_providers:
+		return [ 'cpu' ]
+
+	raise RuntimeError('no available execution provider. requested: ' + ', '.join(execution_providers) + '; available: ' + ', '.join(available_execution_providers))
 
 
 def resolve_cache_path() -> str:

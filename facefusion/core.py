@@ -1,5 +1,6 @@
 import inspect
 import itertools
+import os
 import shutil
 import signal
 import sys
@@ -96,14 +97,23 @@ def pre_check() -> bool:
 		logger.error(translator.get('python_not_supported').format(version = '3.10'), __name__)
 		return False
 
-	if not shutil.which('curl'):
+	if not resolve_binary('curl', 'FACEFUSION_CURL_BIN'):
 		logger.error(translator.get('curl_not_installed'), __name__)
 		return False
 
-	if not shutil.which('ffmpeg'):
+	if not resolve_binary('ffmpeg', 'FACEFUSION_FFMPEG_BIN'):
 		logger.error(translator.get('ffmpeg_not_installed'), __name__)
 		return False
 	return True
+
+
+def resolve_binary(binary_name : str, env_name : str) -> str:
+	binary_path = os.environ.get(env_name)
+
+	if binary_path:
+		return binary_path
+
+	return shutil.which(binary_name)
 
 
 def common_pre_check() -> bool:
@@ -346,5 +356,4 @@ def conditional_process() -> ErrorCode:
 		return image_to_video.process(start_time)
 
 	return 0
-
 

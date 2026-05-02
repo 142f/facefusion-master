@@ -8,3 +8,5 @@ __pycache__
 
 data/
 .venv/
+r-gpu/
+.venv-server-gpu-test/

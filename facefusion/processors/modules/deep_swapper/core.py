@@ -4,7 +4,6 @@ from typing import Tuple
 
 import cv2
 import numpy
-from cv2.typing import Size
 
 import facefusion.jobs.job_manager
 import facefusion.jobs.job_store
@@ -23,6 +22,8 @@ from facefusion.program_helper import find_argument_group
 from facefusion.thread_helper import thread_semaphore
 from facefusion.types import ApplyStateItem, Args, DownloadScope, Face, InferencePool, Mask, ModelOptions, ModelSet, ProcessMode, VisionFrame
 from facefusion.vision import conditional_match_frame_color, read_static_image, read_static_video_frame
+
+Size = Tuple[int, int]
 
 
 @lru_cache()

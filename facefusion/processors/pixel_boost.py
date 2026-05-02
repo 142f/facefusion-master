@@ -1,9 +1,10 @@
-from typing import List
+from typing import List, Tuple
 
 import numpy
-from cv2.typing import Size
 
 from facefusion.types import VisionFrame
+
+Size = Tuple[int, int]
 
 
 def implode_pixel_boost(crop_vision_frame : VisionFrame, pixel_boost_total : int, model_size : Size) -> VisionFrame:

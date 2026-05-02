@@ -22,10 +22,10 @@ LOCALES =\
 }
 ONNXRUNTIME_SET =\
 {
-	'default': ('onnxruntime', '1.24.1')
+	'default': ('onnxruntime', '1.15.0')
 }
 if is_windows() or is_linux():
-	ONNXRUNTIME_SET['cuda'] = ('onnxruntime-gpu', '1.24.3')
+	ONNXRUNTIME_SET['cuda'] = ('onnxruntime-gpu', '1.15.0')
 	ONNXRUNTIME_SET['openvino'] = ('onnxruntime-openvino', '1.24.1')
 if is_windows():
 	ONNXRUNTIME_SET['directml'] = ('onnxruntime-directml', '1.24.3')

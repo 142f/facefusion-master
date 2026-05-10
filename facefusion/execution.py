@@ -8,7 +8,8 @@ from typing import List, Optional
 import onnxruntime
 
 import facefusion.choices
-from facefusion.filesystem import create_directory, is_directory
+from facefusion import config
+from facefusion.filesystem import create_directory, is_directory, resolve_relative_path
 from facefusion.types import ExecutionDevice, ExecutionProvider, InferenceOptionSet, InferenceProvider, ValueAndUnit
 
 onnxruntime.set_default_logger_severity(3)
@@ -127,7 +128,8 @@ def resolve_safe_execution_providers(execution_providers : List[ExecutionProvide
 
 
 def resolve_cache_path() -> str:
-	return os.path.join('.caches', onnxruntime.get_version_string())
+	cache_path = config.get_str_value('paths', 'cache_path', resolve_relative_path('../.assets/caches'))
+	return os.path.join(cache_path, onnxruntime.get_version_string())
 
 
 def resolve_cudnn_conv_algo_search() -> str:

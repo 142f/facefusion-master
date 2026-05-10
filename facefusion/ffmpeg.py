@@ -8,8 +8,8 @@ from tqdm import tqdm
 
 import facefusion.choices
 from facefusion import ffmpeg_builder, logger, process_manager, state_manager, translator
-from facefusion.filesystem import get_file_format, remove_file
-from facefusion.temp_helper import get_temp_file_path, get_temp_frames_pattern
+from facefusion.filesystem import create_directory, get_file_format, remove_file
+from facefusion.temp_helper import get_temp_file_path, get_temp_frames_pattern, get_temp_root_path
 from facefusion.types import AudioBuffer, AudioEncoder, Command, EncoderSet, Fps, Resolution, UpdateProgress, VideoEncoder, VideoFormat
 from facefusion.vision import detect_video_duration, detect_video_fps, pack_resolution, predict_video_frame_total
 
@@ -247,7 +247,9 @@ def merge_video(target_path : str, temp_video_fps : Fps, output_video_resolution
 
 
 def concat_video(output_path : str, temp_output_paths : List[str]) -> bool:
-	file_descriptor, concat_video_path = tempfile.mkstemp()
+	concat_root_path = os.path.join(get_temp_root_path(), 'facefusion')
+	create_directory(concat_root_path)
+	file_descriptor, concat_video_path = tempfile.mkstemp(dir = concat_root_path)
 	os.close(file_descriptor)
 
 	with open(concat_video_path, 'w') as concat_video_file:

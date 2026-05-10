@@ -1,10 +1,9 @@
-import tempfile
-from pathlib import Path
 from typing import Optional
 
 import gradio
 
 from facefusion import state_manager, translator
+from facefusion.filesystem import create_directory, resolve_relative_path
 from facefusion.uis.core import register_ui_component
 
 OUTPUT_PATH_TEXTBOX : Optional[gradio.Textbox] = None
@@ -18,12 +17,9 @@ def render() -> None:
 	global OUTPUT_VIDEO
 
 	if not state_manager.get_item('output_path'):
-		documents_directory = Path.home().joinpath('Documents')
-
-		if documents_directory.exists():
-			state_manager.set_item('output_path', documents_directory)
-		else:
-			state_manager.set_item('output_path', tempfile.gettempdir())
+		output_path = resolve_relative_path('../.assets/outputs')
+		create_directory(output_path)
+		state_manager.set_item('output_path', output_path)
 	OUTPUT_PATH_TEXTBOX = gradio.Textbox(
 		label = translator.get('uis.output_path_textbox'),
 		value = state_manager.get_item('output_path'),

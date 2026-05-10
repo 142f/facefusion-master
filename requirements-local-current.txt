@@ -1,47 +1,14 @@
-# Server baseline: web backend
-Flask==2.2.5
-Flask-Cors==3.0.10
-Werkzeug==2.2.3
+# Local runtime dependencies for .venv-server-gpu-test
+# Core packages only, matching the actual installed versions
 
-# Server baseline: AI core and inference
-onnx==1.14.0
-onnxruntime-gpu==1.15.0
-tensorflow==2.15.0
-protobuf==4.23.4
-insightface==0.7.3
-kornia==0.6.8
-timm==0.5.4
-transformers==4.57.3
-albumentations==1.3.1
-
-# Server baseline: image and video
 numpy==1.24.3
 opencv-python-headless==4.8.0.74
-opencv-python==4.8.0.74
 scipy==1.15.3
-scikit-image==0.20.0
-scikit-learn==1.3.2
-Pillow==9.5.0
-imageio==2.9.0
-moviepy==1.0.3
-matplotlib==3.8.0
-
-# Server baseline: utilities
-tqdm==4.65.0
-psutil==5.9.5
-opennsfw2==0.10.2
-hydra-core==1.3.2
-gdown==5.2.0
-ipython==7.21.0
-Fraction==1.5.1
-
-# FaceFusion runtime additions missing from the server baseline
+onnx==1.14.0
+onnxruntime-gpu==1.15.0
 gradio==5.44.1
 gradio-rangeslider==0.0.8
-
-# Dependencies implied by kornia/timm but absent from the server baseline
-torch==2.2.2
-torchvision==0.17.2
-
-# Local verification
-pytest==9.0.2
+tqdm==4.65.0
+ffmpy==1.0.0
+moviepy==1.0.3
+insightface==0.7.3

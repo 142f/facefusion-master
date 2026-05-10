@@ -1,4 +1,3 @@
-import tempfile
 from argparse import ArgumentParser, HelpFormatter
 from functools import partial
 
@@ -7,7 +6,7 @@ from facefusion import config, metadata, state_manager, translator
 from facefusion.common_helper import create_float_metavar, create_int_metavar, get_first, get_last
 from facefusion.execution import get_available_execution_providers
 from facefusion.ffmpeg import get_available_encoder_set
-from facefusion.filesystem import get_file_name, resolve_file_paths
+from facefusion.filesystem import get_file_name, resolve_file_paths, resolve_relative_path
 from facefusion.jobs import job_store
 from facefusion.processors.core import get_processors_modules
 from facefusion.sanitizer import sanitize_int_range, sanitize_job_id
@@ -33,7 +32,7 @@ def create_config_path_program() -> ArgumentParser:
 def create_temp_path_program() -> ArgumentParser:
 	program = ArgumentParser(add_help = False)
 	group_paths = program.add_argument_group('paths')
-	group_paths.add_argument('--temp-path', help = translator.get('help.temp_path'), default = config.get_str_value('paths', 'temp_path', tempfile.gettempdir()))
+	group_paths.add_argument('--temp-path', help = translator.get('help.temp_path'), default = config.get_str_value('paths', 'temp_path', resolve_relative_path('../.assets/temp')))
 	job_store.register_job_keys([ 'temp_path' ])
 	return program
 
@@ -41,7 +40,7 @@ def create_temp_path_program() -> ArgumentParser:
 def create_jobs_path_program() -> ArgumentParser:
 	program = ArgumentParser(add_help = False)
 	group_paths = program.add_argument_group('paths')
-	group_paths.add_argument('--jobs-path', help = translator.get('help.jobs_path'), default = config.get_str_value('paths', 'jobs_path', '.jobs'))
+	group_paths.add_argument('--jobs-path', help = translator.get('help.jobs_path'), default = config.get_str_value('paths', 'jobs_path', resolve_relative_path('../.assets/jobs')))
 	job_store.register_job_keys([ 'jobs_path' ])
 	return program
 
